@@ -10,7 +10,7 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 # OpenAI API Key
-openai.api_key = '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'
+openai.api_key = 'your_api_key'
 
 # Function to convert speech to text
 def speech_to_text():
