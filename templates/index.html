@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice and Text Chatbot</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=1.0.2">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            // Send text message to the server
+            function startTextChat() {
+                const userText = document.getElementById("userText").value;
+                socket.emit('start_text_chat', { text: userText });
+            }
+
+            // Start voice chat
+            function startVoiceChat() {
+                socket.emit('start_voice_chat', {});
+            }
+
+            // Handle bot's response
+            socket.on('bot_response', function (data) {
+                const responseText = data.response;
+                const chatArea = document.getElementById("chatArea");
+                const botMessage = document.createElement('div');
+                botMessage.className = 'bot-message';
+                botMessage.textContent = 'Bot: ' + responseText;
+                chatArea.appendChild(botMessage);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            });
+
+            // Handle user input display
+            socket.on('user_input', function (data) {
+                const userText = data.input;
+                const chatArea = document.getElementById("chatArea");
+                const userMessage = document.createElement('div');
+                userMessage.className = 'user-message';
+                userMessage.textContent = 'You: ' + userText;
+                chatArea.appendChild(userMessage);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            });
+
+            // Attach event listeners to buttons
+            document.getElementById("sendTextButton").addEventListener('click', startTextChat);
+            document.getElementById("startVoiceButton").addEventListener('click', startVoiceChat);
+
+            // Toggle light/dark mode
+            function toggleMode() {
+                document.body.classList.toggle('dark-mode');
+                const currentMode = document.body.classList.contains('dark-mode') ? 'Dark Mode' : 'Light Mode';
+                document.getElementById("modeToggleButton").textContent = currentMode;
+            }
+
+            document.getElementById("modeToggleButton").addEventListener('click', toggleMode);
+        });
+    </script>
+   
+</head>
+
+<body>
+    <div class="container">
+        <h1>Voice and Text Chatbot </h1>
+
+        <!-- Mode Toggle Button -->
+        <button id="modeToggleButton">Light Mode</button>
+
+        <!-- Chat Area -->
+        <div id="chatArea">
+            <div class="bot-message">Welcome! Ask me anything.</div>
+        </div>
+
+        <!-- Text input and button -->
+        <textarea id="userText" placeholder="Type your message here"></textarea>
+        <button id="sendTextButton">Send Text</button>
+
+        <!-- Voice Chat Button -->
+        <button id="startVoiceButton" class="voice-btn">Start Voice Chat</button>
+    </div>
+</body>
+
+</html>
